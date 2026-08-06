@@ -1,7 +1,10 @@
 const inputEl = document.querySelector('#input');
 const displayEl = document.querySelector('#display');
 const displayEl2 = document.querySelector('#display-bg');
+const clipboardEl = document.querySelector('a[href="/clipboard"]');
 const exportEl = document.querySelector('a[href="/export"]');
+const clipboardWrapEl = clipboardEl?.closest('p');
+const exportWrapEl = exportEl?.closest('p');
 
 let idleTimerId;
 const IDLE_CLEAR_DELAY_MS = 2000;
@@ -52,8 +55,15 @@ let shouldAppendAfterClear = false;
 let displayBaseText = EMPTY_DISPLAY_TEXT;
 
 function updateExportState() {
-    const content = (displayEl.textContent || '').trim();
-    const hasContent = content.length > 0 && content !== EMPTY_DISPLAY_TEXT;
+    const content = (displayEl2.textContent || '').trim();
+    const hasContent = content.length > 0;
+
+    clipboardWrapEl?.toggleAttribute('hidden', !hasContent);
+    exportWrapEl?.toggleAttribute('hidden', !hasContent);
+
+    clipboardEl?.classList.toggle('is-disabled', !hasContent);
+    clipboardEl?.setAttribute('aria-disabled', String(!hasContent));
+    clipboardEl?.setAttribute('tabindex', hasContent ? '0' : '-1');
 
     exportEl?.classList.toggle('is-disabled', !hasContent);
     exportEl?.setAttribute('aria-disabled', String(!hasContent));
@@ -62,16 +72,25 @@ function updateExportState() {
 
 function resetIdleTimer() {
     clearTimeout(idleTimerId);
+
+    // Restart a fade that matches the idle clear delay duration.
+    displayEl.style.transition = 'none';
+    displayEl.style.opacity = '1';
+    void displayEl.offsetWidth;
+    displayEl.style.transition = `opacity ${IDLE_CLEAR_DELAY_MS}ms linear`;
+    displayEl.style.opacity = '0';
+
     idleTimerId = setTimeout(() => {
         // Clear only the input field and switch to append mode for next typing.
-        displayBaseText = displayEl.textContent;
+        displayBaseText = displayEl2.textContent;
         shouldAppendAfterClear = true;
         inputEl.value = '';
     }, IDLE_CLEAR_DELAY_MS);
 }
 
 inputEl.addEventListener('input', () => {
-    const normalizedInput = inputEl.value.trim().toLowerCase();
+    const sanitizedInput = inputEl.value.trim();
+    const normalizedInput = sanitizedInput.toLowerCase();
 
     if (normalizedInput === EMPTY_DISPLAY_TEXT) {
         displayEl.textContent = EMPTY_DISPLAY_TEXT;
@@ -90,11 +109,12 @@ inputEl.addEventListener('input', () => {
     }
 
     if (shouldAppendAfterClear) {
-        displayEl.textContent = displayBaseText + inputEl.value;
-        displayEl2.textContent = displayBaseText + inputEl.value;
+        const separator = displayBaseText.length > 0 ? ' ' : '';
+        displayEl.textContent = sanitizedInput;
+        displayEl2.textContent = displayBaseText + separator + sanitizedInput;
     } else {
-        displayEl.textContent = inputEl.value;
-        displayEl2.textContent = inputEl.value;
+        displayEl.textContent = sanitizedInput;
+        displayEl2.textContent = sanitizedInput;
     }
 
     updateExportState();
@@ -105,9 +125,9 @@ if (exportEl) {
     updateExportState();
 
     exportEl.addEventListener('click', (event) => {
-        const content = (displayEl.textContent || '').trim();
+        const content = (displayEl2.textContent || '').trim();
 
-        if (content.length === 0 || content === EMPTY_DISPLAY_TEXT) {
+        if (content.length === 0) {
             event.preventDefault();
             return;
         }
@@ -125,5 +145,26 @@ if (exportEl) {
         downloadLink.click();
 
         URL.revokeObjectURL(fileUrl);
+    });
+}
+
+if (clipboardEl) {
+    updateExportState();
+
+    clipboardEl.addEventListener('click', async (event) => {
+        const content = (displayEl2.textContent || '').trim();
+
+        if (content.length === 0) {
+            event.preventDefault();
+            return;
+        }
+
+        event.preventDefault();
+
+        try {
+            await navigator.clipboard.writeText(content);
+        } catch {
+            // Ignore clipboard failures to keep interaction non-blocking.
+        }
     });
 }

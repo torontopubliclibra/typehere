@@ -83,7 +83,7 @@ a {
 
 @media (max-width: 700px) {
     #display {
-        font-size: 6.5rem;
-        top: 48.5%;
+        font-size: 5rem;
+        top: 49%;
     }
 }
