@@ -1,6 +1,12 @@
+@font-face {
+    font-family: "Libertinus";
+    src: url(/Libertinus_Serif/LibertinusSerif-Regular.ttf) format("truetype");
+    font-display: swap;
+}
+
 body {
     background: hsla(60, 24.14%, 94.31%, 1);
-    font-family: 'Times New Roman', sans-serif;
+    font-family: 'Libertinus', serif;
     position: relative;
 }
 
@@ -25,7 +31,7 @@ main {
 }
 
 #input {
-    font-family: 'Times New Roman', serif;
+    font-family: 'Libertinus', serif;
     z-index: 1000;
     width: 100%;
     height: auto;
@@ -78,6 +84,6 @@ a {
 @media (max-width: 700px) {
     #display {
         font-size: 6.5rem;
-        top: 48%;
+        top: 48.5%;
     }
 }
