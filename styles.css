@@ -19,6 +19,7 @@ footer {
     gap: 20px;
     justify-content: space-between;
     align-items: center;
+    z-index: 1000;
 }
 
 main {
@@ -56,7 +57,7 @@ a {
 
 #display-bg {
     max-width: calc(100% - 20px);
-    max-height: calc(100% - 80px);
+    height: calc(100% - 80px);
     position: absolute;
     top: 25px;
     left: 10px;
@@ -65,6 +66,12 @@ a {
     text-wrap: wrap;
     word-wrap: break-word;
     overflow: hidden;
+}
+
+#display-bg-content {
+    display: block;
+    transform-origin: top left;
+    will-change: transform;
 }
 
 @media (max-width: 1400px) {
