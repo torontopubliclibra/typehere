@@ -76,15 +76,15 @@ a {
 
 @media (max-width: 1080px) {
     #display {
-        font-size: 10rem;
-        top: 47%;
+        font-size: 8rem;
+        top: 48%;
     }
 }
 
 @media (max-width: 700px) {
     #display {
-        font-size: 5rem;
-        top: 49%;
+        font-size: 4.25rem;
+        top: 48.75%;
     }
 
     main {
