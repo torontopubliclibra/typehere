@@ -84,14 +84,15 @@ a {
 @media (max-width: 700px) {
     #display {
         font-size: 4.25rem;
-        top: 51%;
-    }
-
-    header {
-        padding-top: 30px;
+        top: 48.75%;
     }
 
     main {
-        height: calc(100vh - 160px);
+        height: 140vw;
+        max-height: calc(100vh - 100px);
+    }
+
+    footer {
+        justify-content: flex-end;
     }
 }
