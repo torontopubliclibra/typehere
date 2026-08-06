@@ -7,7 +7,9 @@ const clipboardWrapEl = clipboardEl?.closest('p');
 const exportWrapEl = exportEl?.closest('p');
 
 let idleTimerId;
+let specialTextTimerId;
 const IDLE_CLEAR_DELAY_MS = 2000;
+const SPECIAL_TEXT_CLEAR_DELAY_MS = 10000;
 const EMPTY_DISPLAY_TEXT = 'type here';
 const TYPE_HERE_REPEAT_COUNT = 1000;
 const TYPE_HERE_REPEATED_TEXT = Array(TYPE_HERE_REPEAT_COUNT).fill(EMPTY_DISPLAY_TEXT).join(' ');
@@ -54,6 +56,38 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapi
 let shouldAppendAfterClear = false;
 let displayBaseText = EMPTY_DISPLAY_TEXT;
 
+function setInputLocked(isLocked) {
+    inputEl.disabled = isLocked;
+    inputEl.setAttribute('aria-disabled', String(isLocked));
+}
+
+function clearSpecialTextTimer() {
+    clearTimeout(specialTextTimerId);
+    displayEl2.style.transition = 'none';
+    displayEl2.style.opacity = '1';
+    setInputLocked(false);
+}
+
+function startSpecialTextFadeAndClear() {
+    clearSpecialTextTimer();
+    setInputLocked(true);
+    displayEl2.style.transition = 'none';
+    displayEl2.style.opacity = '1';
+    void displayEl2.offsetWidth;
+    displayEl2.style.transition = `opacity ${SPECIAL_TEXT_CLEAR_DELAY_MS}ms linear`;
+    displayEl2.style.opacity = '0';
+
+    specialTextTimerId = setTimeout(() => {
+        displayEl2.textContent = '';
+        displayEl2.style.transition = 'none';
+        displayEl2.style.opacity = '1';
+        setInputLocked(false);
+        shouldAppendAfterClear = false;
+        displayBaseText = '';
+        updateExportState();
+    }, SPECIAL_TEXT_CLEAR_DELAY_MS);
+}
+
 function updateExportState() {
     const content = (displayEl2.textContent || '').trim();
     const hasContent = content.length > 0;
@@ -89,12 +123,15 @@ function resetIdleTimer() {
 }
 
 inputEl.addEventListener('input', () => {
+    clearSpecialTextTimer();
+
     const sanitizedInput = inputEl.value.trim();
     const normalizedInput = sanitizedInput.toLowerCase();
 
     if (normalizedInput === EMPTY_DISPLAY_TEXT) {
         displayEl.textContent = EMPTY_DISPLAY_TEXT;
         displayEl2.textContent = TYPE_HERE_REPEATED_TEXT;
+        startSpecialTextFadeAndClear();
         updateExportState();
         resetIdleTimer();
         return;
@@ -103,6 +140,7 @@ inputEl.addEventListener('input', () => {
     if (normalizedInput === LOREM_IPSUM_TRIGGER) {
         displayEl.textContent = LOREM_IPSUM_TRIGGER;
         displayEl2.textContent = LOREM_IPSUM_LONG_TEXT;
+        startSpecialTextFadeAndClear();
         updateExportState();
         resetIdleTimer();
         return;
