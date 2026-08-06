@@ -1,6 +1,7 @@
 const inputEl = document.querySelector('#input');
 const displayEl = document.querySelector('#display');
 const displayEl2 = document.querySelector('#display-bg');
+const datestampEl = document.querySelector('#datestamp');
 const clipboardEl = document.querySelector('a[href="/clipboard"]');
 const exportEl = document.querySelector('a[href="/export"]');
 const clipboardWrapEl = clipboardEl?.closest('p');
@@ -73,6 +74,29 @@ function getDisplayBackgroundText() {
 
 function setDisplayBackgroundText(value) {
     displayBgContentEl.textContent = value;
+}
+
+function pad2(value) {
+    return String(value).padStart(2, '0');
+}
+
+function formatDateTime(now) {
+    const day = pad2(now.getDate());
+    const month = pad2(now.getMonth() + 1);
+    const year = pad2(now.getFullYear() % 100);
+    const hours = pad2(now.getHours());
+    const minutes = pad2(now.getMinutes());
+    const seconds = pad2(now.getSeconds());
+
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+}
+
+function updateDatestamp() {
+    if (!datestampEl) {
+        return;
+    }
+
+    datestampEl.textContent = formatDateTime(new Date());
 }
 
 let hasStartedBackgroundStretch = false;
@@ -255,3 +279,6 @@ if (clipboardEl) {
         }
     });
 }
+
+updateDatestamp();
+setInterval(updateDatestamp, 1000);
