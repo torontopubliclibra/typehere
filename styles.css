@@ -86,4 +86,9 @@ a {
         font-size: 5rem;
         top: 49%;
     }
+
+    main {
+        height: 125vw;
+        max-height: calc(100vh - 100px);
+    }
 }
