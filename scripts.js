@@ -16,9 +16,6 @@ const EMPTY_DISPLAY_TEXT = 'type here';
 const TYPE_HERE_REPEAT_COUNT = 1000;
 const TYPE_HERE_REPEATED_TEXT = Array(TYPE_HERE_REPEAT_COUNT).fill(EMPTY_DISPLAY_TEXT).join(' ');
 const LOREM_IPSUM_TRIGGER = 'lorem ipsum';
-const DISPLAY_BG_STRETCH_RATE_PER_MS = 1 / 180000;
-const PAGE_BRIGHTNESS_MIN = 0.65;
-const PAGE_CONTRAST_MAX = 1.35;
 const LOREM_IPSUM_LONG_TEXT = `Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
 
 Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
@@ -97,30 +94,6 @@ function updateDatestamp() {
     }
 
     datestampEl.textContent = formatDateTime(new Date());
-}
-
-let hasStartedBackgroundStretch = false;
-
-function animateDisplayBackground(startTime) {
-    const elapsedMs = performance.now() - startTime;
-    const stretchScale = 1 + (elapsedMs * DISPLAY_BG_STRETCH_RATE_PER_MS);
-    const visualProgress = Math.min(elapsedMs * DISPLAY_BG_STRETCH_RATE_PER_MS, 1);
-    const brightness = 1 - ((1 - PAGE_BRIGHTNESS_MIN) * visualProgress);
-    const contrast = 1 + ((PAGE_CONTRAST_MAX - 1) * visualProgress);
-
-    displayEl.style.transform = `translateY(-50%) scaleY(${stretchScale})`;
-    displayBgContentEl.style.transform = `scaleY(${stretchScale})`;
-    document.body.style.filter = `brightness(${brightness}) contrast(${contrast})`;
-    requestAnimationFrame(() => animateDisplayBackground(startTime));
-}
-
-function startBackgroundStretchIfNeeded(inputValue) {
-    if (hasStartedBackgroundStretch || inputValue.length === 0) {
-        return;
-    }
-
-    hasStartedBackgroundStretch = true;
-    animateDisplayBackground(performance.now());
 }
 
 function setActionLinkState(linkEl, wrapEl, hasContent) {
@@ -206,8 +179,6 @@ inputEl.addEventListener('input', () => {
 
     const sanitizedInput = inputEl.value.trim();
     const normalizedInput = sanitizedInput.toLowerCase();
-
-    startBackgroundStretchIfNeeded(sanitizedInput);
 
     if (normalizedInput === EMPTY_DISPLAY_TEXT) {
         activateSpecialText(EMPTY_DISPLAY_TEXT, TYPE_HERE_REPEATED_TEXT);
